@@ -912,13 +912,13 @@ function shareThisPage() {
   const shareData = {
     title: 'Portfolios — Sr. Graphic Designer',
     text: 'Check out this Portfolio!',
-    url: 'https://resume.com'
+    url: 'https://portpolios.onrender.com'
   };
 
   if (navigator.share) {
     navigator.share(shareData).catch(function(){});
   } else {
-    navigator.clipboard.writeText('https://resume.com').then(function(){
+    navigator.clipboard.writeText('https://portpolios.onrender.com').then(function(){
       showCopied();
     });
   }
