@@ -78,57 +78,62 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
 .photo-field{text-align:center;grid-column:1/-1;}
 .photo-hint{font-size:0.67rem;color:rgba(255,255,255,.3);text-align:center;margin-top:4px;}
 
-/* ══ VIEW WRAPPER ══ */
+/* VIEW WRAPPER */
 .vwrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:24px;overflow:hidden;backdrop-filter:blur(20px);}
 .vbar{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);}
 .vbar-label{font-size:0.78rem;color:rgba(255,255,255,.4);font-weight:500;}
 .vbar-btns{display:flex;gap:8px;}
 
-/* ══ PAGES: outer scrollable area, inner scaler ══ */
 .pages-outer{
   width:100%;
   overflow-x:hidden;
   overflow-y:visible;
   background:rgba(0,0,0,.3);
-  padding:28px 0;
-  display:flex;
-  justify-content:center;
-}
-/* pagesScaler width & transform set by JS */
-.pages-scaler{
-  transform-origin:top center;
+  padding:28px 16px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:0;
-  /* JS sets width to match page px width */
 }
 
-/* ══ RESUME PAGES (px-based for reliable scaling) ══ */
-.rpage{
+/* Off-screen host used only to build real DOM for html2canvas to shoot. Not display:none so it still lays out/paints. */
+#renderHost{
+  position:fixed;
+  top:0;
+  left:-99999px;
   width:794px;
-  min-height:1123px;
-  background:#fafafa;
-  font-family:'Poppins',sans-serif;
-  font-size:8.5pt;
-  line-height:1.55;
-  border-radius:6px 6px 0 0;
-  overflow:hidden;
-  color:#2d3436;
-  box-shadow:0 8px 48px rgba(0,0,0,.6);
+  pointer-events:none;
 }
-.rpage2{
+
+#pagesImages{
+  width:100%;
+  max-width:794px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+}
+.page-shot-wrap{width:100%;max-width:794px;line-height:0;}
+.page-shot-wrap img{width:100%;display:block;border-radius:6px;box-shadow:0 8px 48px rgba(0,0,0,.6);}
+
+.preview-loading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:80px 20px;color:rgba(255,255,255,.6);font-size:0.85rem;font-weight:500;
+}
+.preview-spinner{
+  width:34px;height:34px;border-radius:50%;
+  border:3px solid rgba(255,107,107,.2);border-top-color:#ff6b6b;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.rpage-single{
   width:794px;
-  min-height:1123px;
   background:#fafafa;
   font-family:'Poppins',sans-serif;
   font-size:8.5pt;
   line-height:1.55;
-  border-radius:0 0 6px 6px;
-  overflow:hidden;
+  overflow:visible;
   color:#2d3436;
-  box-shadow:0 8px 48px rgba(0,0,0,.6);
-  margin-top:3px;
 }
 
 .rp1-hero{background:linear-gradient(135deg,#0f3460 0%,#16213e 50%,#0f0e17 100%);padding:32px 36px 28px;display:flex;align-items:center;gap:28px;position:relative;overflow:hidden;}
@@ -138,21 +143,22 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
 .hero-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .hero-info{flex:1;position:relative;z-index:1;}
 .hero-name{font-family:'Merriweather',serif;font-size:1.9rem;font-weight:900;color:white;line-height:1;margin-bottom:4px;}
-.hero-role{font-size:1rem;font-weight:700;margin-bottom:10px;background:linear-gradient(90deg,#ff6b6b,#feca57);background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;}
+.hero-role{font-size:1rem;font-weight:700;margin-bottom:10px;color:#ff9f6b;}
 .hero-tags{display:flex;flex-wrap:wrap;gap:6px;}
 .htag{padding:3px 10px;border-radius:20px;font-size:0.62rem;font-weight:600;color:white;letter-spacing:.04em;}
 .htag.t1{background:rgba(255,107,107,.3);border:1px solid rgba(255,107,107,.5);}
 .htag.t2{background:rgba(254,202,87,.25);border:1px solid rgba(254,202,87,.4);}
 .htag.t3{background:rgba(72,219,251,.2);border:1px solid rgba(72,219,251,.4);}
 
+.pd-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;}
 .pd-item{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
 .pd-icon{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#0f3460,#e94560);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;flex-shrink:0;}
 .pd-text{display:flex;flex-direction:column;min-width:0;}
 .pd-label{font-size:0.53rem;font-weight:700;color:#9aa3ab;text-transform:uppercase;letter-spacing:.08em;}
 .pd-val{font-size:0.67rem;font-weight:600;color:#2d3436;word-break:break-word;}
 .edu-list-item{background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #0f3460;margin-bottom:8px;}
-.rp1-body{display:grid; grid-template-columns:220px 1fr;}
-.rp1-left{background:#fff;padding:24px 36px;}
+.rp1-body{display:block;width:100%;}
+.rp1-left{background:#fff;padding:24px 36px;width:100%;}
 .lsec{margin-bottom:22px;}
 .lsec-title{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#e94560;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e94560;display:flex;align-items:center;gap:6px;}
 .skill-bar-item{margin-bottom:8px;}
@@ -183,8 +189,10 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
 .proj-card:nth-child(3){border-color:#ff6b6b;}
 .proj-card::after{content:'';position:absolute;bottom:-10px;right:-10px;width:50px;height:50px;border-radius:50%;background:rgba(0,0,0,.04);}
 .pc-title{font-weight:700;font-size:0.74rem;color:#2d3436;}
+.pc-role{font-size:0.62rem;font-weight:600;color:#0f3460;margin-top:2px;}
 .pc-tech{font-size:0.6rem;font-weight:600;color:white;background:linear-gradient(135deg,#0f3460,#e94560);display:inline-block;padding:1px 8px;border-radius:10px;margin:3px 0;}
-.pc-link{font-size:0.62rem;font-weight:600;color:#0f3460;display:inline-flex;align-items:center;gap:4px;margin:4px 0 2px;text-decoration:none;}
+.pc-links{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 2px;}
+.pc-link{font-size:0.62rem;font-weight:600;color:#0f3460;display:inline-flex;align-items:center;gap:4px;text-decoration:none;}
 .pc-link:hover{text-decoration:underline;}
 .pc-desc{font-size:0.65rem;color:#636e72;line-height:1.55;}
 .edu-gpa{font-size:0.6rem;font-weight:700;color:white;background:#0f3460;padding:1px 7px;border-radius:8px;}
@@ -198,9 +206,14 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
 .ach-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;}
 .ach-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,#feca57,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:0.65rem;}
 .ach-text{font-size:0.7rem;color:#2d3436;line-height:1.5;}
+.cert-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;padding:8px 12px;background:#f0f2f5;border-radius:8px;}
+.cert-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,#48dbfb,#0f3460);display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:white;}
+.cert-text{font-size:0.7rem;color:#2d3436;line-height:1.5;}
 .ec-row{display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;padding:7px 12px;background:#f0f2f5;border-radius:8px;}
 .ec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#48dbfb,#0f3460);margin-top:4px;}
 .ec-text{font-size:0.68rem;color:#636e72;line-height:1.5;}
+.por-row{display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;padding:7px 12px;background:#f8f9fa;border-radius:8px;border-left:3px solid #e94560;}
+.por-text{font-size:0.68rem;color:#636e72;line-height:1.5;}
 
 .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .ref-card{background:white;border-radius:12px;padding:14px 16px;border:1px solid #e8ecf0;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;overflow:hidden;}
@@ -221,20 +234,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
 .interests-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;}
 .interest-row{display:flex;align-items:center;gap:7px;font-size:0.68rem;color:#2d3436;font-weight:500;padding:4px 0;}
 .interest-row .dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#e94560,#ff6b6b);flex-shrink:0;}
-
-/* ══ PRINT ══ */
-@page{size:A4 portrait;margin:0mm;}
-@media print{
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  html,body{margin:0!important;padding:0!important;background:white!important;width:210mm!important;}
-  .app-header,.vbar,#editMode,.autofill-toast,.hbtns,.vbar-btns{display:none!important;}
-  #viewMode{display:block!important;width:210mm!important;margin:0!important;padding:0!important;}
-  .vwrap{border-radius:0!important;background:transparent!important;border:none!important;width:210mm!important;margin:0!important;padding:0!important;}
-  .pages-outer{padding:0!important;background:transparent!important;width:210mm!important;}
-  .pages-scaler{transform:none!important;width:210mm!important;}
-  .rpage{width:210mm!important;height:297mm!important;min-height:unset!important;max-height:297mm!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;margin:0!important;page-break-after:always!important;break-after:page!important;}
-  .rpage2{width:210mm!important;height:297mm!important;min-height:unset!important;max-height:297mm!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;margin:0!important;page-break-before:always!important;break-before:page!important;}
-}
 </style>
 </head>
 <body>
@@ -253,21 +252,21 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
 <div id="editMode" class="active">
 <div class="ecard">
   <div class="ecard-title">Build Your Resume</div>
-  <p class="ecard-sub">Complete all sections → Preview your 2-page resume</p>
+  <p class="ecard-sub">Complete all sections → Preview your resume</p>
 
-  <div class="sec-ttl">👤 Personal Info</div>
+  <div class="sec-ttl">👤 Personal Info & Profile Photo</div>
   <div class="fg">
     <div class="fld photo-field fgf">
       <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
-        <div class="pz-placeholder" id="pzph"><span class="pz-icon">📷</span><span>Upload Photo</span></div>
+        <div class="pz-placeholder" id="pzph"><span class="pz-icon">📷</span><span>Upload Photo (Optional)</span></div>
         <img id="photoImg" src="" alt="" style="display:none;">
       </div>
-      <p class="photo-hint">Click to upload profile photo (JPG / PNG)</p>
+      <p class="photo-hint">Click to upload profile photo (JPG / PNG) — Optional</p>
       <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
     </div>
     <div class="fld"><label>Full Name</label><input id="name" value="Arjun Krishnamurthy"></div>
     <div class="fld">
-      <label>Job Title <span class="autofill-badge">✦ Auto Fill</span></label>
+      <label>Job Role <span class="autofill-badge">✦ Auto Fill</span></label>
       <div class="role-wrap">
         <div class="role-input-row">
           <input id="role" value="Software Engineer (Fresher)" placeholder="Type job title…" autocomplete="off" oninput="onRoleInput()" onfocus="onRoleInput()">
@@ -276,18 +275,21 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
         <div class="autofill-dropdown" id="roleDropdown" style="display:none;"></div>
       </div>
     </div>
-    <div class="fld"><label>Email</label><input id="email" value="arjun.k@gmail.com"></div>
-    <div class="fld"><label>Phone</label><input id="phone" value="+91 98765 43210"></div>
-    <div class="fld"><label>Date of Birth</label><input id="dob" type="date" value="2002-05-14"></div>
-    <div class="fld"><label>Location</label><input id="location" value="Chennai, Tamil Nadu"></div>
-    <div class="fld"><label>LinkedIn</label><input id="linkedin" value="linkedin.com/in/arjunk"></div>
-    <div class="fld"><label>GitHub</label><input id="github" value="github.com/arjunk"></div>
-    <div class="fld"><label>Portfolio</label><input id="portfolio" value="arjunk.dev"></div>
-    <div class="fld fgf"><label>Tags (3 keywords)</label><input id="tags" value="Full Stack Dev, React Expert, Open Source"></div>
-    <div class="fld fgf"><label>Career Objective</label>
-      <textarea id="objective" rows="3">Motivated Computer Science graduate passionate about building scalable web applications. Seeking a fresher role to apply modern tech skills and grow within a dynamic engineering team.</textarea>
-    </div>
   </div>
+
+  <div class="sec-ttl">📞 Contact Information</div>
+  <div class="fg">
+    <div class="fld"><label>📞 Phone Number</label><input id="phone" value="+91 98765 43210"></div>
+    <div class="fld"><label>📧 Professional Email</label><input id="email" value="arjun.k@gmail.com"></div>
+    <div class="fld"><label>🔗 LinkedIn</label><input id="linkedin" value="linkedin.com/in/arjunk"></div>
+    <div class="fld"><label>💻 GitHub</label><input id="github" value="github.com/arjunk"></div>
+    <div class="fld"><label>🌐 Portfolio</label><input id="portfolio" value="arjunk.dev"></div>
+    <div class="fld"><label>Location</label><input id="location" value="Chennai, Tamil Nadu"></div>
+    <div class="fld fgf"><label>Tags (3 keywords)</label><input id="tags" value="Full Stack Dev, React Expert, Open Source"></div>
+  </div>
+
+  <div class="sec-ttl">🎯 Career Objective</div>
+  <div class="fld fgf"><textarea id="objective" rows="3">Motivated Computer Science graduate passionate about building scalable web applications. Seeking a fresher role to apply modern tech skills and grow within a dynamic engineering team.</textarea></div>
 
   <div class="sec-ttl">🎓 Education</div>
   <div id="eduList">
@@ -310,14 +312,63 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-app);min-height:100vh;
   </div>
   <button class="add-btn" onclick="addEdu()">+ Add Education</button>
 
-  <div class="sec-ttl">💼 Internships / Experience</div>
+  <div class="sec-ttl">🛠 Technical Skills</div>
+  <div class="fg">
+    <div class="fld fgf"><label>Programming Languages (skill:percent, ...)</label>
+      <input id="progLangs" value="JavaScript:90,Python:78,Java:75,C++:70"></div>
+    <div class="fld fgf"><label>Frameworks (skill:percent, ...)</label>
+      <input id="frameworks" value="React.js:88,Node.js:82,Express.js:80,Flutter:70"></div>
+    <div class="fld fgf"><label>Databases (skill:percent, ...)</label>
+      <input id="databases" value="MongoDB:80,MySQL:76,Firebase:74"></div>
+    <div class="fld fgf"><label>Tools (comma separated)</label>
+      <input id="toolsSkills" value="Git, Docker, VS Code, Postman, Figma"></div>
+    <div class="fld fgf"><label>Soft Skills (comma separated)</label>
+      <input id="softSkills" value="Problem Solving,Team Collaboration,Communication,Time Management,Fast Learner"></div>
+  </div>
+
+  <div class="sec-ttl">🚀 Projects ⭐</div>
+  <div id="projList">
+    <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
+      <div class="fg">
+        <div class="fld"><label>Project Name</label><input class="proj-name" value="ShopEasy — E-Commerce Platform"></div>
+        <div class="fld"><label>Technologies Used</label><input class="proj-tech" value="React, Node.js, MongoDB, Razorpay"></div>
+        <div class="fld"><label>Your Role</label><input class="proj-role" value="Full Stack Developer"></div>
+        <div class="fld"><label>GitHub Link (Optional)</label><input class="proj-github" value="https://github.com/arjunk/shopeasy"></div>
+        <div class="fld fgf"><label>Live Demo (Optional)</label><input class="proj-demo" value="https://shopeasy-demo.vercel.app"></div>
+        <div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2">Full-stack e-commerce with JWT auth, product filtering, cart & Razorpay payment. Deployed on Vercel + Railway.</textarea></div>
+      </div>
+    </div>
+    <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
+      <div class="fg">
+        <div class="fld"><label>Project Name</label><input class="proj-name" value="StudyTrack — Habit Tracker"></div>
+        <div class="fld"><label>Technologies Used</label><input class="proj-tech" value="Flutter, Firebase"></div>
+        <div class="fld"><label>Your Role</label><input class="proj-role" value="Mobile App Developer"></div>
+        <div class="fld"><label>GitHub Link (Optional)</label><input class="proj-github" value="https://github.com/arjunk/studytrack"></div>
+        <div class="fld fgf"><label>Live Demo (Optional)</label><input class="proj-demo" value=""></div>
+        <div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2">Mobile app for daily study habits with streak counters, push notifications & Firebase sync.</textarea></div>
+      </div>
+    </div>
+    <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
+      <div class="fg">
+        <div class="fld"><label>Project Name</label><input class="proj-name" value="SmartNotes — AI Summarizer"></div>
+        <div class="fld"><label>Technologies Used</label><input class="proj-tech" value="Python, Flask, OpenAI API, React"></div>
+        <div class="fld"><label>Your Role</label><input class="proj-role" value="Backend Developer"></div>
+        <div class="fld"><label>GitHub Link (Optional)</label><input class="proj-github" value=""></div>
+        <div class="fld fgf"><label>Live Demo (Optional)</label><input class="proj-demo" value="https://smartnotes-ai.vercel.app"></div>
+        <div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2">AI-powered note summarization with tag search, markdown support, and user authentication.</textarea></div>
+      </div>
+    </div>
+  </div>
+  <button class="add-btn" onclick="addProj()">+ Add Project</button>
+
+  <div class="sec-ttl">💼 Internship / Training</div>
   <div id="expList">
     <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
       <div class="fg">
-        <div class="fld"><label>Position</label><input class="exp-title" value="Web Development Intern"></div>
-        <div class="fld"><label>Company</label><input class="exp-company" value="Zoho Corporation"></div>
+        <div class="fld"><label>Company Name</label><input class="exp-company" value="Zoho Corporation"></div>
+        <div class="fld"><label>Job Role</label><input class="exp-title" value="Web Development Intern"></div>
         <div class="fld"><label>Duration</label><input class="exp-duration" value="Jun 2023 – Aug 2023"></div>
-        <div class="fld fgf"><label>Points (one per line)</label>
+        <div class="fld fgf"><label>Responsibilities (one per line)</label>
           <textarea class="exp-desc" rows="3">Built responsive UI components using React.js and Tailwind CSS.
 Integrated REST APIs and improved page load speed by 35%.
 Collaborated with senior developers on Agile sprint cycles.</textarea>
@@ -325,57 +376,34 @@ Collaborated with senior developers on Agile sprint cycles.</textarea>
       </div>
     </div>
   </div>
-  <button class="add-btn" onclick="addExp()">+ Add Experience</button>
+  <button class="add-btn" onclick="addExp()">+ Add Internship / Training</button>
 
-  <div class="sec-ttl">🛠 Skills</div>
-  <div class="fg">
-    <div class="fld fgf"><label>Technical Skills (skill:percent, ...)</label>
-      <input id="techSkills" value="JavaScript:90,React.js:88,Node.js:82,Python:78,Java:75,MongoDB:80,MySQL:76,Git:92,Docker:65,Flutter:70"></div>
-    <div class="fld fgf"><label>Soft Skills (comma separated)</label>
-      <input id="softSkills" value="Problem Solving,Team Collaboration,Communication,Time Management,Fast Learner"></div>
-    <div class="fld fgf"><label>Other Tools / Frameworks (comma separated)</label>
-      <input id="otherSkills" value="REST APIs, HTML5, CSS3, Tailwind, Redux, Firebase, AWS, Vercel"></div>
-  </div>
-
-  <div class="sec-ttl">🚀 Projects</div>
-  <div id="projList">
-    <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
-      <div class="fg">
-        <div class="fld"><label>Project Name</label><input class="proj-name" value="ShopEasy — E-Commerce Platform"></div>
-        <div class="fld"><label>Tech Stack</label><input class="proj-tech" value="React, Node.js, MongoDB, Razorpay"></div>
-        <div class="fld"><label>Project Link</label><input class="proj-link" value="https://shopeasy-demo.vercel.app"></div>
-        <div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2">Full-stack e-commerce with JWT auth, product filtering, cart & Razorpay payment. Deployed on Vercel + Railway.</textarea></div>
-      </div>
-    </div>
-    <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
-      <div class="fg">
-        <div class="fld"><label>Project Name</label><input class="proj-name" value="StudyTrack — Habit Tracker"></div>
-        <div class="fld"><label>Tech Stack</label><input class="proj-tech" value="Flutter, Firebase"></div>
-        <div class="fld"><label>Project Link</label><input class="proj-link" value="https://github.com/arjunk/studytrack"></div>
-        <div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2">Mobile app for daily study habits with streak counters, push notifications & Firebase sync.</textarea></div>
-      </div>
-    </div>
-    <div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button>
-      <div class="fg">
-        <div class="fld"><label>Project Name</label><input class="proj-name" value="SmartNotes — AI Summarizer"></div>
-        <div class="fld"><label>Tech Stack</label><input class="proj-tech" value="Python, Flask, OpenAI API, React"></div>
-        <div class="fld"><label>Project Link</label><input class="proj-link" value="https://smartnotes-ai.vercel.app"></div>
-        <div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2">AI-powered note summarization with tag search, markdown support, and user authentication.</textarea></div>
-      </div>
-    </div>
-  </div>
-  <button class="add-btn" onclick="addProj()">+ Add Project</button>
-
-  <div class="sec-ttl">🏆 Achievements & Certifications</div>
-  <div class="fld"><label>One per line</label>
-    <textarea id="achievements" rows="5">AWS Cloud Practitioner Certified (2024)
-Winner — HackFest 2023 (Top 10 / 200 teams)
-Meta Front-End Developer Certificate, Coursera (2023)
+  <div class="sec-ttl">📜 Certifications</div>
+  <div class="fld fgf"><label>One per line (e.g. NPTEL, Coursera, Udemy, Google, Microsoft, AWS, Oracle, Cisco)</label>
+    <textarea id="certifications" rows="5">AWS Cloud Practitioner Certified — AWS (2024)
+Meta Front-End Developer Certificate — Coursera (2023)
 NPTEL — Data Structures & Algorithms (Elite Grade)
-Google Analytics Certification (2023)</textarea>
+Google Analytics Certification — Google (2023)
+Cisco Networking Basics — Cisco (2023)</textarea>
   </div>
 
-  <div class="sec-ttl">🌐 Languages</div>
+  <div class="sec-ttl">🏆 Achievements</div>
+  <div class="fld fgf"><label>One per line (Hackathons, Coding Competitions, Paper Presentations, Awards, Academic)</label>
+    <textarea id="achievements" rows="4">Winner — HackFest 2023 (Top 10 / 200 teams)
+2nd Runner-up — National Level Paper Presentation, IIT Madras (2023)
+University Rank Holder — Top 5% of graduating batch
+Finalist — Smart India Hackathon 2023</textarea>
+  </div>
+
+  <div class="sec-ttl">🎖 Positions of Responsibility</div>
+  <div class="fld fgf"><label>One per line (Team Leader, Class Representative, Club Coordinator, Event Organizer, NSS/NCC Volunteer...)</label>
+    <textarea id="positions" rows="4">Technical Head — College Coding Club, organized 3 inter-college hackathons
+Class Representative — CSE Department (2022–23)
+Event Organizer — Annual Tech Symposium, managed 200+ participants
+NSS Volunteer — Digital literacy workshops for rural students (2022–23) (Optional)</textarea>
+  </div>
+
+  <div class="sec-ttl">🌐 Languages Known</div>
   <div id="langList">
     <div class="rep-entry" style="padding:12px 16px;"><button class="rm-btn" onclick="removeEntry(this)">×</button>
       <div class="fg">
@@ -395,19 +423,21 @@ Google Analytics Certification (2023)</textarea>
         </select></div>
       </div>
     </div>
+    <div class="rep-entry" style="padding:12px 16px;"><button class="rm-btn" onclick="removeEntry(this)">×</button>
+      <div class="fg">
+        <div class="fld"><label>Language (Optional)</label><input class="lang-name" value="Hindi"></div>
+        <div class="fld"><label>Level</label><select class="lang-level">
+          <option value="100">Native</option><option value="90">Fluent</option>
+          <option value="70" selected>Intermediate</option><option value="40">Basic</option>
+        </select></div>
+      </div>
+    </div>
   </div>
   <button class="add-btn" onclick="addLang()">+ Add Language</button>
 
-  <div class="sec-ttl">🎪 Extra Curricular</div>
-  <div class="fld"><label>One per line</label>
-    <textarea id="extracurr" rows="3">NSS Volunteer — Digital literacy workshops for rural students (2022–23)
-Technical Head — College Coding Club, organized 3 inter-college hackathons
-Toastmasters Youth Speaker — Zonal 3rd place (2023)</textarea>
-  </div>
-
-  <div class="sec-ttl">🎯 Interests</div>
-  <div class="fld"><label>Comma separated</label>
-    <input id="interests" value="Open Source, Competitive Coding, Tech Blogging, Chess, Cricket">
+  <div class="sec-ttl">🎯 Interests / Hobbies (Optional)</div>
+  <div class="fld fgf"><label>Comma separated</label>
+    <input id="interests" value="Reading, Problem Solving, Coding, Cricket, Photography, Music">
   </div>
 
   <div class="sec-ttl">🤝 References & Connections</div>
@@ -431,9 +461,9 @@ Toastmasters Youth Speaker — Zonal 3rd place (2023)</textarea>
   </div>
   <button class="add-btn" onclick="addConn()">+ Add Reference</button>
 
-  <div class="sec-ttl">📋 Declaration</div>
+  <div class="sec-ttl">📋 Declaration (Optional)</div>
   <div class="fld">
-    <textarea id="declaration" rows="2">I hereby declare that the information provided in this resume is true and correct to the best of my knowledge and belief.</textarea>
+    <textarea id="declaration" rows="2">I hereby declare that the above information is true to the best of my knowledge.</textarea>
   </div>
 </div>
 </div>
@@ -447,43 +477,27 @@ Toastmasters Youth Speaker — Zonal 3rd place (2023)</textarea>
       <button class="hbtn hbtn-dl" onclick="downloadResume()">⬇️ Download PDF</button>
     </div>
   </div>
-  <!-- outer = full width container; scaler = the 794px resume scaled down to fit -->
   <div class="pages-outer" id="pagesOuter">
-    <div class="pages-scaler" id="pagesScaler" style="width:794px;"></div>
+    <div id="pagesImages"></div>
   </div>
 </div>
 </div>
 
-<script>
-const PAGE_PX = 794; // 210mm at 96dpi
+<!-- Hidden off-screen host: real HTML is built here so html2canvas can screenshot it -->
+<div id="renderHost"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
 const JOB_PRESETS = [
-  {title:"Software Engineer (Fresher)",tags:"Full Stack Dev, React Expert, Open Source",objective:"Motivated Computer Science graduate passionate about building scalable web applications. Seeking a fresher role to apply modern tech skills and grow within a dynamic engineering team.",techSkills:"JavaScript:90,React.js:88,Node.js:82,Python:78,Java:75,MongoDB:80,MySQL:76,Git:92,Docker:65",softSkills:"Problem Solving,Team Collaboration,Communication,Time Management,Fast Learner",otherSkills:"REST APIs, HTML5, CSS3, Tailwind, Redux, Firebase, AWS, Vercel",interests:"Open Source, Competitive Coding, Tech Blogging, Chess, Cricket"},
-  {title:"Frontend Developer (Fresher)",tags:"UI Developer, React Specialist, CSS Expert",objective:"Creative Frontend Developer with strong command over React.js, HTML5, and CSS3. Eager to craft pixel-perfect, responsive user interfaces and deliver exceptional user experiences in a fast-paced team.",techSkills:"HTML5:95,CSS3:92,JavaScript:90,React.js:88,Tailwind CSS:85,Figma:78,TypeScript:72,Redux:70,Git:88",softSkills:"Creativity,Attention to Detail,Communication,Self-Motivated,Adaptability",otherSkills:"Next.js, SASS, Bootstrap, Framer Motion, Webpack, Vite, Storybook",interests:"UI/UX Design, Open Source, Web Animations, Dribbble, Gaming"},
-  {title:"Backend Developer (Fresher)",tags:"API Builder, Node.js Dev, Database Expert",objective:"Backend Developer with solid knowledge in Node.js, Express, and database design. Passionate about building reliable, secure, and scalable server-side systems that power modern applications.",techSkills:"Node.js:88,Express.js:85,Python:82,MongoDB:84,MySQL:80,REST API:90,JWT Auth:78,Docker:72,Git:88",softSkills:"Analytical Thinking,Problem Solving,Team Player,Documentation,Attention to Detail",otherSkills:"PostgreSQL, Redis, GraphQL, Postman, Nginx, Linux, AWS Lambda",interests:"System Design, API Architecture, Competitive Coding, Cybersecurity, Blogging"},
-  {title:"Data Analyst (Fresher)",tags:"Data Insights, Python Analyst, SQL Expert",objective:"Analytical and detail-oriented Data Analyst fresher skilled in Python, SQL, and data visualization tools. Committed to transforming raw data into actionable business insights to drive informed decisions.",techSkills:"Python:88,SQL:90,Excel:85,Tableau:80,Power BI:75,Pandas:85,NumPy:80,Matplotlib:78,Machine Learning:65",softSkills:"Critical Thinking,Data Storytelling,Communication,Curiosity,Attention to Detail",otherSkills:"Jupyter Notebook, Google Data Studio, BigQuery, SPSS, R, Looker",interests:"Data Visualization, Business Intelligence, Statistics, Finance, Chess"},
-  {title:"Machine Learning Engineer (Fresher)",tags:"AI/ML Dev, Python Expert, Deep Learning",objective:"Passionate ML Engineer with hands-on experience in building predictive models and NLP pipelines. Seeking to apply machine learning expertise to solve real-world problems in an AI-driven organization.",techSkills:"Python:92,TensorFlow:82,PyTorch:78,Scikit-learn:85,NLP:80,Data Preprocessing:88,SQL:75,Git:85,Docker:70",softSkills:"Research Mindset,Problem Solving,Curiosity,Collaboration,Documentation",otherSkills:"Keras, Hugging Face, OpenCV, Pandas, Matplotlib, Google Colab, AWS SageMaker",interests:"AI Research, NLP, Robotics, Kaggle Competitions, Academic Papers"},
-  {title:"UI/UX Designer (Fresher)",tags:"Figma Expert, UX Researcher, Prototyping",objective:"Creative UI/UX Designer with a strong eye for design and user empathy. Skilled in crafting wireframes, prototypes, and high-fidelity designs that solve user problems and elevate product experiences.",techSkills:"Figma:92,Adobe XD:85,Sketch:75,Canva:88,Wireframing:90,Prototyping:88,User Research:80,HTML/CSS:72",softSkills:"Empathy,Creativity,Communication,User Advocacy,Collaboration",otherSkills:"InVision, Maze, Hotjar, Zeplin, Lottie, Design Systems, Accessibility",interests:"Design Thinking, Motion Design, Typography, Art, Product Reviews"},
-  {title:"DevOps Engineer (Fresher)",tags:"CI/CD Expert, Cloud Ops, Docker & K8s",objective:"DevOps fresher with hands-on knowledge of CI/CD pipelines, containerization, and cloud infrastructure. Eager to bridge the gap between development and operations in a fast-paced engineering environment.",techSkills:"Docker:85,Kubernetes:78,Jenkins:80,Git:92,Linux:88,AWS:80,Terraform:72,Bash Scripting:78,Python:75",softSkills:"Problem Solving,System Thinking,Collaboration,Documentation,Reliability",otherSkills:"GitHub Actions, Ansible, Prometheus, Grafana, Nginx, SonarQube, ArgoCD",interests:"Cloud Computing, Open Source, Linux, Automation, Security, Gaming"},
-  {title:"Cybersecurity Analyst (Fresher)",tags:"Network Security, Ethical Hacker, SOC Analyst",objective:"Cybersecurity fresher with a strong foundation in network security, vulnerability assessment, and ethical hacking. Committed to protecting digital assets and ensuring organizational security posture.",techSkills:"Network Security:85,Linux:88,Python:80,Wireshark:82,Metasploit:75,SIEM:72,Firewall Config:78,Cryptography:70",softSkills:"Analytical Thinking,Attention to Detail,Problem Solving,Ethics,Communication",otherSkills:"Kali Linux, Nmap, Burp Suite, Splunk, OWASP, CEH Concepts, Incident Response",interests:"CTF Competitions, Bug Bounty, Cybersecurity Research, Hacking Labs, Chess"}
+  {title:"Software Engineer (Fresher)",tags:"Full Stack Dev, React Expert, Open Source",objective:"Motivated Computer Science graduate passionate about building scalable web applications. Seeking a fresher role to apply modern tech skills and grow within a dynamic engineering team.",progLangs:"JavaScript:90,Python:78,Java:75,C++:70",frameworks:"React.js:88,Node.js:82,Express.js:80",databases:"MongoDB:80,MySQL:76",toolsSkills:"Git, Docker, VS Code, Postman, AWS, Vercel",softSkills:"Problem Solving,Team Collaboration,Communication,Time Management,Fast Learner",interests:"Reading, Problem Solving, Coding, Cricket, Photography, Music"},
+  {title:"Frontend Developer (Fresher)",tags:"UI Developer, React Specialist, CSS Expert",objective:"Creative Frontend Developer with strong command over React.js, HTML5, and CSS3. Eager to craft pixel-perfect, responsive user interfaces and deliver exceptional user experiences in a fast-paced team.",progLangs:"HTML5:95,CSS3:92,JavaScript:90,TypeScript:72",frameworks:"React.js:88,Next.js:80,Tailwind CSS:85",databases:"Firebase:75,MongoDB:70",toolsSkills:"Figma, Git, Webpack, Vite, Storybook",softSkills:"Creativity,Attention to Detail,Communication,Self-Motivated,Adaptability",interests:"UI/UX Design, Open Source, Web Animations, Gaming, Music"},
+  {title:"Backend Developer (Fresher)",tags:"API Builder, Node.js Dev, Database Expert",objective:"Backend Developer with solid knowledge in Node.js, Express, and database design. Passionate about building reliable, secure, and scalable server-side systems that power modern applications.",progLangs:"Node.js:88,Python:82,Java:75",frameworks:"Express.js:85,REST API:90,JWT Auth:78",databases:"MongoDB:84,MySQL:80,PostgreSQL:76,Redis:70",toolsSkills:"Git, Docker, Postman, Nginx, Linux, AWS Lambda",softSkills:"Analytical Thinking,Problem Solving,Team Player,Documentation,Attention to Detail",interests:"System Design, API Architecture, Coding, Cybersecurity, Reading"},
+  {title:"Data Analyst (Fresher)",tags:"Data Insights, Python Analyst, SQL Expert",objective:"Analytical and detail-oriented Data Analyst fresher skilled in Python, SQL, and data visualization tools. Committed to transforming raw data into actionable business insights to drive informed decisions.",progLangs:"Python:88,SQL:90,R:65",frameworks:"Pandas:85,NumPy:80,Machine Learning:65",databases:"MySQL:78,BigQuery:70",toolsSkills:"Excel, Tableau, Power BI, Jupyter Notebook, Looker",softSkills:"Critical Thinking,Data Storytelling,Communication,Curiosity,Attention to Detail",interests:"Data Visualization, Business Intelligence, Reading, Music, Photography"},
+  {title:"UI/UX Designer (Fresher)",tags:"Figma Expert, UX Researcher, Prototyping",objective:"Creative UI/UX Designer with a strong eye for design and user empathy. Skilled in crafting wireframes, prototypes, and high-fidelity designs that solve user problems and elevate product experiences.",progLangs:"HTML/CSS:72",frameworks:"Wireframing:90,Prototyping:88",databases:"",toolsSkills:"Figma, Adobe XD, Sketch, Canva, InVision, Maze, Zeplin",softSkills:"Empathy,Creativity,Communication,User Advocacy,Collaboration",interests:"Design Thinking, Motion Design, Typography, Photography, Reading"},
+  {title:"DevOps Engineer (Fresher)",tags:"CI/CD Expert, Cloud Ops, Docker & K8s",objective:"DevOps fresher with hands-on knowledge of CI/CD pipelines, containerization, and cloud infrastructure. Eager to bridge the gap between development and operations in a fast-paced engineering environment.",progLangs:"Python:75,Bash Scripting:78",frameworks:"Docker:85,Kubernetes:78,Terraform:72",databases:"",toolsSkills:"Jenkins, Git, Linux, AWS, GitHub Actions, Ansible, Prometheus",softSkills:"Problem Solving,System Thinking,Collaboration,Documentation,Reliability",interests:"Cloud Computing, Open Source, Coding, Gaming, Reading"}
 ];
 
 let photoDataURL = '';
-
-/* Scale resume to fill the preview area */
-function scalePages() {
-  const outer = document.getElementById('pagesOuter');
-  const scaler = document.getElementById('pagesScaler');
-  if (!outer || !scaler) return;
-  const avail = outer.clientWidth - 32; // 16px padding each side
-  const scale = Math.min(1, avail / PAGE_PX);
-  scaler.style.transform = `scale(${scale})`;
-  scaler.style.transformOrigin = 'top center';
-  // Compensate height so outer does not collapse
-  const naturalH = scaler.scrollHeight;
-  outer.style.height = (naturalH * scale + 56) + 'px';
-}
-window.addEventListener('resize', scalePages);
 
 function onRoleInput() {
   const val = document.getElementById('role').value.trim().toLowerCase();
@@ -500,9 +514,11 @@ function applyPreset(idx) {
   document.getElementById('role').value = p.title;
   document.getElementById('tags').value = p.tags;
   document.getElementById('objective').value = p.objective;
-  document.getElementById('techSkills').value = p.techSkills;
+  document.getElementById('progLangs').value = p.progLangs;
+  document.getElementById('frameworks').value = p.frameworks;
+  document.getElementById('databases').value = p.databases;
+  document.getElementById('toolsSkills').value = p.toolsSkills;
   document.getElementById('softSkills').value = p.softSkills;
-  document.getElementById('otherSkills').value = p.otherSkills;
   document.getElementById('interests').value = p.interests;
   document.getElementById('roleDropdown').style.display = 'none';
   document.getElementById('roleClear').classList.add('show');
@@ -531,8 +547,8 @@ function handlePhoto(e) {
 function removeEntry(btn) { btn.closest('.rep-entry').remove(); }
 function getInits(n) { return n.split(' ').slice(0,2).map(x=>x[0]||'').join('').toUpperCase(); }
 function addEdu(){document.getElementById('eduList').insertAdjacentHTML('beforeend',`<div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Degree</label><input class="edu-degree" placeholder="Degree"></div><div class="fld"><label>Institution</label><input class="edu-inst" placeholder="College"></div><div class="fld"><label>Year</label><input class="edu-year" placeholder="Year"></div><div class="fld"><label>CGPA / %</label><input class="edu-grade" placeholder="Grade"></div></div></div>`);}
-function addExp(){document.getElementById('expList').insertAdjacentHTML('beforeend',`<div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Position</label><input class="exp-title" placeholder="Role"></div><div class="fld"><label>Company</label><input class="exp-company" placeholder="Company"></div><div class="fld"><label>Duration</label><input class="exp-duration" placeholder="Month Year – Month Year"></div><div class="fld fgf"><label>Points (one per line)</label><textarea class="exp-desc" rows="3"></textarea></div></div></div>`);}
-function addProj(){document.getElementById('projList').insertAdjacentHTML('beforeend',`<div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Project Name</label><input class="proj-name" placeholder="Name"></div><div class="fld"><label>Tech Stack</label><input class="proj-tech" placeholder="Technologies"></div><div class="fld"><label>Project Link</label><input class="proj-link" placeholder="https://..."></div><div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2"></textarea></div></div></div>`);}
+function addExp(){document.getElementById('expList').insertAdjacentHTML('beforeend',`<div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Company Name</label><input class="exp-company" placeholder="Company"></div><div class="fld"><label>Job Role</label><input class="exp-title" placeholder="Role"></div><div class="fld"><label>Duration</label><input class="exp-duration" placeholder="Month Year – Month Year"></div><div class="fld fgf"><label>Responsibilities (one per line)</label><textarea class="exp-desc" rows="3"></textarea></div></div></div>`);}
+function addProj(){document.getElementById('projList').insertAdjacentHTML('beforeend',`<div class="rep-entry"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Project Name</label><input class="proj-name" placeholder="Name"></div><div class="fld"><label>Technologies Used</label><input class="proj-tech" placeholder="Technologies"></div><div class="fld"><label>Your Role</label><input class="proj-role" placeholder="Your role"></div><div class="fld"><label>GitHub Link (Optional)</label><input class="proj-github" placeholder="https://github.com/..."></div><div class="fld fgf"><label>Live Demo (Optional)</label><input class="proj-demo" placeholder="https://..."></div><div class="fld fgf"><label>Description</label><textarea class="proj-desc" rows="2"></textarea></div></div></div>`);}
 function addLang(){document.getElementById('langList').insertAdjacentHTML('beforeend',`<div class="rep-entry" style="padding:12px 16px;"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Language</label><input class="lang-name" placeholder="Language"></div><div class="fld"><label>Level</label><select class="lang-level"><option value="100">Native</option><option value="90">Fluent</option><option value="70" selected>Intermediate</option><option value="40">Basic</option></select></div></div></div>`);}
 function addConn(){document.getElementById('connList').insertAdjacentHTML('beforeend',`<div class="rep-entry" style="padding:14px 16px;"><button class="rm-btn" onclick="removeEntry(this)">×</button><div class="fg"><div class="fld"><label>Name</label><input class="conn-name" placeholder="Name"></div><div class="fld"><label>Designation</label><input class="conn-desig" placeholder="Title, Org"></div><div class="fld"><label>Contact</label><input class="conn-contact" placeholder="Email/Phone"></div><div class="fld"><label>Relationship</label><input class="conn-rel" placeholder="Guide / Mentor..."></div></div></div>`);}
 
@@ -541,36 +557,18 @@ function showEdit() {
   document.getElementById('viewMode').classList.remove('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function showView() {
-  buildResume();
+async function showView() {
   document.getElementById('editMode').classList.remove('active');
   document.getElementById('viewMode').classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
-  requestAnimationFrame(()=>requestAnimationFrame(scalePages));
+  buildResume();
+  await renderPageImages();
 }
 
-function downloadResume() {
-  buildResume();
-  const pagesHTML = document.getElementById('pagesScaler').innerHTML;
-  const styles = Array.from(document.querySelectorAll('style')).map(s=>s.innerHTML).join('\n');
-  const printHTML = `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
-<style>
-${styles}
-@page{size:A4 portrait;margin:0mm;}
-html,body{margin:0!important;padding:0!important;width:210mm!important;background:white!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-.rpage{display:block!important;width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;overflow:hidden!important;margin:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;page-break-after:always!important;break-after:page!important;}
-.rpage2{display:block!important;width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;overflow:hidden!important;margin:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;page-break-before:always!important;break-before:page!important;}
-</style></head>
-<body>${pagesHTML}
-<script>document.fonts.ready.then(()=>{setTimeout(()=>{window.focus();window.print();setTimeout(()=>window.close(),2000);},600);});<\/script>
-</body></html>`;
-  const blob = new Blob([printHTML],{type:'text/html'});
-  const url = URL.createObjectURL(blob);
-  const pw = window.open(url,'_blank');
-  if(!pw) alert('Popup blocked! Please allow popups and try again.');
+
+
+function parseSkillStr(str){
+  return (str||'').split(',').map(s=>{const p=s.trim().split(':');return{name:p[0].trim(),pct:parseInt(p[1])||75};}).filter(s=>s.name);
 }
 
 function buildResume() {
@@ -579,31 +577,32 @@ function buildResume() {
   const email       = document.getElementById('email').value.trim();
   const phone       = document.getElementById('phone').value.trim();
   const loc         = document.getElementById('location').value.trim();
-  const dobRaw      = document.getElementById('dob').value.trim();
-  const dob         = dobRaw ? new Date(dobRaw).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '';
   const linkedin    = document.getElementById('linkedin').value.trim();
   const github      = document.getElementById('github').value.trim();
   const portfolio   = document.getElementById('portfolio').value.trim();
   const objective   = document.getElementById('objective').value.trim();
-  const extracurr   = document.getElementById('extracurr').value.trim();
   const declaration = document.getElementById('declaration').value.trim();
   const tags        = document.getElementById('tags').value.trim().split(',').map(s=>s.trim()).filter(Boolean);
   const interests   = document.getElementById('interests').value.trim().split(',').map(s=>s.trim()).filter(Boolean);
-  const techSkills  = document.getElementById('techSkills').value.split(',').map(s=>{const p=s.trim().split(':');return{name:p[0].trim(),pct:parseInt(p[1])||75};}).filter(s=>s.name);
+  const progLangs   = parseSkillStr(document.getElementById('progLangs').value);
+  const frameworks  = parseSkillStr(document.getElementById('frameworks').value);
+  const databases   = parseSkillStr(document.getElementById('databases').value);
+  const toolsSkills = document.getElementById('toolsSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
   const softSkills  = document.getElementById('softSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
-  const otherSkills = document.getElementById('otherSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
   const achievements= document.getElementById('achievements').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  const ecLines     = extracurr.split('\n').map(s=>s.trim()).filter(Boolean);
+  const certifications = document.getElementById('certifications').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const positions   = document.getElementById('positions').value.split('\n').map(s=>s.trim()).filter(Boolean);
   const eduEntries  = [...document.querySelectorAll('#eduList .rep-entry')].map(e=>({degree:e.querySelector('.edu-degree').value.trim(),inst:e.querySelector('.edu-inst').value.trim(),year:e.querySelector('.edu-year').value.trim(),grade:e.querySelector('.edu-grade').value.trim()})).filter(e=>e.degree||e.inst);
   const expEntries  = [...document.querySelectorAll('#expList .rep-entry')].map(e=>({title:e.querySelector('.exp-title').value.trim(),company:e.querySelector('.exp-company').value.trim(),duration:e.querySelector('.exp-duration').value.trim(),desc:e.querySelector('.exp-desc').value.trim()})).filter(e=>e.title||e.company);
-  const projEntries = [...document.querySelectorAll('#projList .rep-entry')].map(e=>({name:e.querySelector('.proj-name').value.trim(),tech:e.querySelector('.proj-tech').value.trim(),link:e.querySelector('.proj-link')?e.querySelector('.proj-link').value.trim():'',desc:e.querySelector('.proj-desc').value.trim()})).filter(e=>e.name);
+  const projEntries = [...document.querySelectorAll('#projList .rep-entry')].map(e=>({name:e.querySelector('.proj-name').value.trim(),tech:e.querySelector('.proj-tech').value.trim(),role:e.querySelector('.proj-role')?e.querySelector('.proj-role').value.trim():'',github:e.querySelector('.proj-github')?e.querySelector('.proj-github').value.trim():'',demo:e.querySelector('.proj-demo')?e.querySelector('.proj-demo').value.trim():'',desc:e.querySelector('.proj-desc').value.trim()})).filter(e=>e.name);
   const langEntries = [...document.querySelectorAll('#langList .rep-entry')].map(e=>({lang:e.querySelector('.lang-name').value.trim(),level:parseInt(e.querySelector('.lang-level').value),label:e.querySelector('.lang-level').options[e.querySelector('.lang-level').selectedIndex].text})).filter(e=>e.lang);
   const connEntries = [...document.querySelectorAll('#connList .rep-entry')].map(e=>({name:e.querySelector('.conn-name').value.trim(),desig:e.querySelector('.conn-desig').value.trim(),contact:e.querySelector('.conn-contact').value.trim(),rel:e.querySelector('.conn-rel').value.trim()})).filter(e=>e.name);
   const photoHTML   = photoDataURL?`<img src="${photoDataURL}" alt="">`:`<span>${getInits(name)}</span>`;
-  const personalDetails=[{icon:'✉',label:'Email',val:email},{icon:'📱',label:'Phone',val:phone},{icon:'🎂',label:'Date of Birth',val:dob},{icon:'📍',label:'Location',val:loc},{icon:'in',label:'LinkedIn',val:linkedin},{icon:'gh',label:'GitHub',val:github},{icon:'🌐',label:'Portfolio',val:portfolio}].filter(c=>c.val);
+  const personalDetails=[{icon:'✉',label:'Email',val:email},{icon:'📱',label:'Phone',val:phone},{icon:'📍',label:'Location',val:loc},{icon:'in',label:'LinkedIn',val:linkedin},{icon:'gh',label:'GitHub',val:github},{icon:'🌐',label:'Portfolio',val:portfolio}].filter(c=>c.val);
   const tagColors=['t1','t2','t3'];
+  const allTechSkills = [...progLangs.map(s=>({...s,cat:'Language'})), ...frameworks.map(s=>({...s,cat:'Framework'})), ...databases.map(s=>({...s,cat:'Database'}))];
 
-  const p1=`<div class="rpage">
+  const pAll=`<div class="rpage-single">
     <div class="rp1-hero">
       <div class="hero-photo">${photoHTML}</div>
       <div class="hero-info">
@@ -613,30 +612,71 @@ function buildResume() {
       </div>
     </div>
     <div class="rp1-body"><div class="rp1-left">
-      ${personalDetails.length?`<div class="lsec"><div class="lsec-title">Personal Info</div>${personalDetails.map(c=>`<div class="pd-item"><div class="pd-icon">${c.icon}</div><div class="pd-text"><span class="pd-label">${c.label}</span><span class="pd-val">${c.val}</span></div></div>`).join('')}</div>`:''}
+      ${personalDetails.length?`<div class="lsec"><div class="lsec-title">Contact Info</div><div class="pd-grid">${personalDetails.map(c=>`<div class="pd-item"><div class="pd-icon">${c.icon}</div><div class="pd-text"><span class="pd-label">${c.label}</span><span class="pd-val">${c.val}</span></div></div>`).join('')}</div></div>`:''}
       ${objective?`<div class="lsec"><div class="lsec-title">Objective</div><div style="font-size:0.67rem;color:#636e72;line-height:1.7;">${objective}</div></div>`:''}
       ${eduEntries.length?`<div class="lsec"><div class="lsec-title">🎓 Education</div>${eduEntries.map(e=>`<div class="edu-list-item"><div class="edu-deg">${e.degree}</div><div style="font-size:0.63rem;color:#e94560;font-weight:500;margin:2px 0;">${e.inst}</div><div class="edu-meta"><span class="edu-yr">${e.year}</span>${e.grade?`<span class="edu-gpa">${e.grade}</span>`:''}</div></div>`).join('')}</div>`:''}
-      ${techSkills.length?`<div class="lsec"><div class="lsec-title">Tech Skills</div><div class="skill-2col">${techSkills.map(s=>`<div class="skill-bar-item"><div class="sb-label"><span>${s.name}</span><span class="sb-pct">${s.pct}%</span></div><div class="sb-track"><div class="sb-fill" style="width:${s.pct}%"></div></div></div>`).join('')}</div></div>`:''}
+      ${allTechSkills.length?`<div class="lsec"><div class="lsec-title">Technical Skills</div><div class="skill-2col">${allTechSkills.map(s=>`<div class="skill-bar-item"><div class="sb-label"><span>${s.name}</span><span class="sb-pct">${s.pct}%</span></div><div class="sb-track"><div class="sb-fill" style="width:${s.pct}%"></div></div></div>`).join('')}</div></div>`:''}
+      ${toolsSkills.length?`<div class="lsec"><div class="lsec-title">Tools</div><div class="chip-2col">${toolsSkills.map(s=>`<div class="chip-row"><span class="ci"></span>${s}</div>`).join('')}</div></div>`:''}
       ${softSkills.length?`<div class="lsec"><div class="lsec-title">Soft Skills</div><div class="chip-2col">${softSkills.map(s=>`<div class="chip-row"><span class="ci"></span>${s}</div>`).join('')}</div></div>`:''}
-      ${otherSkills.length?`<div class="lsec"><div class="lsec-title">Tools & Frameworks</div><div class="chip-2col">${otherSkills.map(s=>`<div class="chip-row"><span class="ci"></span>${s}</div>`).join('')}</div></div>`:''}
-      ${langEntries.length?`<div class="lsec"><div class="lsec-title">Languages</div>${langEntries.map(l=>`<div><div class="lang-item"><span class="lang-name-txt">${l.lang}</span><span class="lang-badge">${l.label}</span></div><div class="lang-track"><div class="lang-fill" style="width:${l.level}%"></div></div></div>`).join('')}</div>`:''}
-      ${interests.length?`<div class="lsec"><div class="lsec-title">Interests</div><div class="interests-grid">${interests.map(i=>`<div class="interest-row"><span class="dot"></span>${i}</div>`).join('')}</div></div>`:''}
-      ${expEntries.length?`<div class="lsec"><div class="lsec-title">💼 Experience</div>${expEntries.map(e=>{const lines=e.desc.split('\n').filter(Boolean);return`<div class="r-entry"><div class="r-ehdr"><div class="r-etitle">${e.title}</div>${e.duration?`<div class="r-edate">${e.duration}</div>`:''}</div><div class="r-eorg">${e.company}</div>${lines.length?`<div class="r-edesc"><ul>${lines.map(l=>`<li>${l}</li>`).join('')}</ul></div>`:''}</div>`;}).join('')}</div>`:''}
-      ${projEntries.length?`<div class="lsec"><div class="lsec-title">🚀 Projects</div>${projEntries.map(p=>`<div class="proj-card"><div class="pc-title">${p.name}</div>${p.tech?`<div class="pc-tech">${p.tech}</div>`:''}${p.link?`<a class="pc-link" href="${p.link}" target="_blank">🔗 ${p.link}</a>`:''}${p.desc?`<div class="pc-desc">${p.desc}</div>`:''}</div>`).join('')}</div>`:''}
+      ${langEntries.length?`<div class="lsec"><div class="lsec-title">Languages Known</div>${langEntries.map(l=>`<div><div class="lang-item"><span class="lang-name-txt">${l.lang}</span><span class="lang-badge">${l.label}</span></div><div class="lang-track"><div class="lang-fill" style="width:${l.level}%"></div></div></div>`).join('')}</div>`:''}
+      ${interests.length?`<div class="lsec"><div class="lsec-title">Interests / Hobbies</div><div class="interests-grid">${interests.map(i=>`<div class="interest-row"><span class="dot"></span>${i}</div>`).join('')}</div></div>`:''}
     </div></div>
-  </div>`;
-
-  const p2=`<div class="rpage2">
-    <div class="rp2-hdr"><div class="rp2-hdr-left"></div></div>
     <div class="rp2-body">
-      ${achievements.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">🏆 Achievements & Certifications</div>${achievements.map(a=>`<div class="ach-row"><div class="ach-icon">★</div><div class="ach-text">${a}</div></div>`).join('')}</div>`:''}
-      ${ecLines.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">🎪 Extra Curricular</div>${ecLines.map(e=>`<div class="ec-row"><div class="ec-dot"></div><div class="ec-text">${e}</div></div>`).join('')}</div>`:''}
+      ${projEntries.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">🚀 Projects</div>${projEntries.map(p=>`<div class="proj-card"><div class="pc-title">${p.name}</div>${p.role?`<div class="pc-role">Role: ${p.role}</div>`:''}${p.tech?`<div class="pc-tech">${p.tech}</div>`:''}${(p.github||p.demo)?`<div class="pc-links">${p.github?`<a class="pc-link" href="${p.github}" target="_blank">💻 GitHub</a>`:''}${p.demo?`<a class="pc-link" href="${p.demo}" target="_blank">🌐 Live Demo</a>`:''}</div>`:''}${p.desc?`<div class="pc-desc">${p.desc}</div>`:''}</div>`).join('')}</div>`:''}
+      ${expEntries.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">💼 Internship / Training</div>${expEntries.map(e=>{const lines=e.desc.split('\n').filter(Boolean);return`<div class="r-entry"><div class="r-ehdr"><div class="r-etitle">${e.title}</div>${e.duration?`<div class="r-edate">${e.duration}</div>`:''}</div><div class="r-eorg">${e.company}</div>${lines.length?`<div class="r-edesc"><ul>${lines.map(l=>`<li>${l}</li>`).join('')}</ul></div>`:''}</div>`;}).join('')}</div>`:''}
+      ${certifications.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">📜 Certifications</div>${certifications.map(c=>`<div class="cert-row"><div class="cert-icon">✓</div><div class="cert-text">${c}</div></div>`).join('')}</div>`:''}
+      ${achievements.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">🏆 Achievements</div>${achievements.map(a=>`<div class="ach-row"><div class="ach-icon">★</div><div class="ach-text">${a}</div></div>`).join('')}</div>`:''}
+      ${positions.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">🎖 Positions of Responsibility</div>${positions.map(e=>`<div class="por-row"><div class="por-text">${e}</div></div>`).join('')}</div>`:''}
       ${connEntries.length?`<div style="margin-bottom:20px;"><div class="p2-sec-title">🤝 References & Connections</div><div class="ref-grid">${connEntries.map(c=>{const ini=c.name.split(' ').slice(0,2).map(x=>x[0]||'').join('').toUpperCase();return`<div class="ref-card"><div class="ref-top"><div class="ref-ava">${ini}</div><div><div class="ref-name">${c.name}</div><div class="ref-desig">${c.desig}</div></div></div>${c.rel?`<div class="ref-rel">🤝 ${c.rel}</div>`:''}${c.contact?`<div class="ref-contact">📬 ${c.contact}</div>`:''}</div>`;}).join('')}</div></div>`:''}
       ${declaration?`<div class="decl-box"><div class="decl-text">${declaration}</div><div class="decl-foot"><div class="decl-place"><div style="font-size:.63rem;color:#636e72;">📍 ${loc||'Chennai'}</div><div style="font-size:.63rem;color:#636e72;">📅 ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div></div><div class="decl-sig"><div class="sig-line">Signature</div><div class="sig-name">${name}</div></div></div></div>`:''}
     </div>
   </div>`;
 
-  document.getElementById('pagesScaler').innerHTML = p1 + p2;
+  document.getElementById('renderHost').innerHTML = pAll;
+}
+
+// Converts each resume page (built inside the hidden #renderHost) into an actual
+// PNG image using html2canvas, then displays those images in the visible preview.
+async function renderPageImages() {
+  const imagesWrap = document.getElementById('pagesImages');
+  imagesWrap.innerHTML = `<div class="preview-loading"><div class="preview-spinner"></div><div>Rendering resume pages as images…</div></div>`;
+
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch(e) {}
+  }
+  // small delay so any images (e.g. uploaded photo) finish decoding into layout
+  await new Promise(r => setTimeout(r, 150));
+
+  const pageEls = [...document.querySelectorAll('#renderHost > div')];
+  if (!pageEls.length || typeof html2canvas === 'undefined') {
+    imagesWrap.innerHTML = `<div class="preview-loading">Couldn't generate image preview. Please try again.</div>`;
+    return;
+  }
+
+  const shots = [];
+  for (const el of pageEls) {
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        backgroundColor: '#fafafa',
+        useCORS: true,
+        logging: false,
+        windowWidth: 794
+      });
+      shots.push(canvas.toDataURL('image/png'));
+    } catch (err) {
+      console.error('Page render failed', err);
+    }
+  }
+
+  if (!shots.length) {
+    imagesWrap.innerHTML = `<div class="preview-loading">Couldn't generate image preview. Please try again.</div>`;
+    return;
+  }
+
+  imagesWrap.innerHTML = shots.map((src, i) => {
+    return `<div class="page-shot-wrap"><img src="${src}" alt="Resume page ${i+1}"></div>`;
+  }).join('');
 }
 
 buildResume();

@@ -247,16 +247,22 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;padd
   .ref-grid,.contact-grid,.skill-grid,.chip-grid{grid-template-columns:1fr;}
 }
 
-@page{size:A4;margin:0.25in 0.75in 0.25in 0.5in;}
+/* ── PAGE MARGINS ──
+   Base rule applies to page 2, page 3, page 4, etc. (top margin trimmed to 0.25in).
+   The :first rule overrides ONLY the first page, keeping its original 12mm on every side. */
+@page{size:A4;margin:12mm;margin-top:0.5in;}
+@page :first{margin-top:12mm;}
+
 @media print{
-  body{background:none!important;padding:0;}
+  html,body{margin:0!important;padding:0!important;background:none!important;}
   .app-header,#editMode{display:none!important;}
   #viewMode{display:block!important;}
-  .vwrap{border-radius:0;background:white;}
+  .vwrap{border-radius:0;background:white;border:none!important;}
   .vbar{display:none!important;}
-  .pages-wrap{padding:0;gap:0;}
-  .rpage{box-shadow:none;border-radius:0;width:100%;max-width:100%;}
+  .pages-wrap{padding:0!important;margin:0!important;gap:0!important;display:block!important;}
+  .rpage{box-shadow:none;border-radius:0;width:100%!important;max-width:100%!important;margin:0 auto!important;}
   .page-tag{display:none!important;}
+  #measureBox{display:none!important;}
 
   /* Avoid breaking elements awkwardly across pages */
   .rs-section{break-inside:avoid;page-break-inside:avoid;}
@@ -267,6 +273,9 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;padd
   .contact-grid,.skill-grid,.chip-grid,.ref-grid{break-inside:avoid;page-break-inside:avoid;}
   .r-hero{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid;}
 }
+
+/* Off-screen measuring sandbox (never shown) */
+#measureBox{position:absolute;left:-9999px;top:0;visibility:hidden;}
 </style>
 </head>
 <body>
@@ -303,18 +312,23 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;padd
 
     <div class="fg">
       <div class="fld"><label>Full Name</label><input id="name" value="Arjun Krishnamurthy" placeholder="Your full name"></div>
-      <div class="fld"><label>Job Title <button type="button" class="hbtn-auto" onclick="autoFillRole()">+ Auto Fill</button></label><input id="role" value="Software Engineer (Fresher)" placeholder="Desired role"></div>
+      <div class="fld"><label>Job Title <button type="button" class="hbtn-auto" onclick="autoFillRole()">+ Auto Fill</button></label><input id="role" value="Software Engineer " placeholder="Desired role"></div>
       <div class="fld"><label>Email</label><input id="email" type="email" value="arjun.k@gmail.com" placeholder="you@email.com"></div>
       <div class="fld"><label>Phone</label><input id="phone" value="+91 98765 43210" placeholder="+91 XXXXX XXXXX"></div>
       <div class="fld"><label>Date of Birth</label><input id="dob" type="date" value="2002-05-14"></div>
       <div class="fld"><label>Location</label><input id="location" value="Chennai, Tamil Nadu" placeholder="City, State"></div>
+      <div class="fld fgf"><label>Full Address</label><input id="address" value="12, Gandhi Street, Adyar, Chennai - 600020" placeholder="Full postal address"></div>
       <div class="fld"><label>LinkedIn</label><input id="linkedin" value="linkedin.com/in/arjunk" placeholder="linkedin.com/in/..."></div>
       <div class="fld"><label>GitHub</label><input id="github" value="github.com/arjunk" placeholder="github.com/..."></div>
       <div class="fld fgf"><label>Portfolio</label><input id="portfolio" value="arjunk.dev" placeholder="yoursite.com"></div>
       <div class="fld fgf"><label>Tags (3 keywords)</label><input id="tags" value="Full Stack Dev, React Expert, Open Source"></div>
       <div class="fld fgf">
+        <label>Professional Summary</label>
+        <textarea id="summary" rows="3">Results-driven Computer Science graduate with hands-on experience building full-stack web and mobile applications. Skilled in React, Node.js and modern cloud tooling, with a strong record of shipping projects end-to-end and collaborating in Agile teams.</textarea>
+      </div>
+      <div class="fld fgf">
         <label>Career Objective</label>
-        <textarea id="objective" rows="3">Motivated Computer Science graduate passionate about building scalable web applications. Seeking a fresher role to apply modern tech skills and grow within a dynamic engineering team.</textarea>
+        <textarea id="objective" rows="3">Motivated Computer Science graduate passionate about building scalable web applications. Seeking a Experience role to apply modern tech skills and grow within a dynamic engineering team.</textarea>
       </div>
     </div>
   </div>
@@ -345,9 +359,9 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;padd
     <button class="add-btn" onclick="addEdu()">+ Add Education</button>
   </div>
 
-  <!-- INTERNSHIPS / EXPERIENCE -->
+  <!-- EXPERIENCE -->
   <div class="sec-card">
-    <div class="sec-card-title">💼 Internships / Experience</div>
+    <div class="sec-card-title">💼 Experience</div>
     <div id="expList">
       <div class="rep-entry">
         <button class="rm-btn" onclick="removeEntry(this)" title="Remove">×</button>
@@ -385,6 +399,7 @@ Collaborated with senior developers on Agile sprint cycles.</textarea>
   <!-- PROJECTS -->
   <div class="sec-card">
     <div class="sec-card-title">🚀 Projects</div>
+    <p class="sec-card-sub">Add as many projects as you like here for your own records — only the <strong style="color:#ff6b6b;">first project</strong> below will be shown on the printed resume.</p>
     <div id="projList">
       <div class="rep-entry">
         <button class="rm-btn" onclick="removeEntry(this)" title="Remove">×</button>
@@ -412,15 +427,24 @@ Collaborated with senior developers on Agile sprint cycles.</textarea>
     <button class="add-btn" onclick="addProj()">+ Add Project</button>
   </div>
 
-  <!-- ACHIEVEMENTS & CERTIFICATIONS -->
+  <!-- ACHIEVEMENTS & AWARDS -->
   <div class="sec-card">
-    <div class="sec-card-title">🏆 Achievements & Certifications</div>
+    <div class="sec-card-title">🏆 Achievements & Awards</div>
     <div class="fld">
       <label>One per line</label>
-      <textarea id="achievements" rows="5">AWS Cloud Practitioner Certified (2024)
-Winner — HackFest 2023 (Top 10 / 200 teams)
-Meta Front-End Developer Certificate, Coursera (2023)
+      <textarea id="achievements" rows="4">Winner — HackFest 2023 (Top 10 / 200 teams)
 NPTEL — Data Structures &amp; Algorithms (Elite Grade)
+College Topper — Department of CSE (2023-24)</textarea>
+    </div>
+  </div>
+
+  <!-- CERTIFICATIONS -->
+  <div class="sec-card">
+    <div class="sec-card-title">📜 Certifications</div>
+    <div class="fld">
+      <label>One per line</label>
+      <textarea id="certifications" rows="4">AWS Cloud Practitioner Certified (2024)
+Meta Front-End Developer Certificate, Coursera (2023)
 Google Analytics Certification (2023)</textarea>
     </div>
   </div>
@@ -430,8 +454,18 @@ Google Analytics Certification (2023)</textarea>
     <div class="sec-card-title">🎪 Extra Curricular</div>
     <div class="fld">
       <label>One per line</label>
-      <textarea id="extraCurricular" rows="3">NSS Volunteer — Digital literacy workshops for rural students (2022-23)
-Technical Head — College Coding Club, organized 3 inter-college hackathons</textarea>
+      <textarea id="extraCurricular" rows="3">Technical Head — College Coding Club, organized 3 inter-college hackathons
+Member — College Cultural Committee (2022-23)</textarea>
+    </div>
+  </div>
+
+  <!-- VOLUNTEER WORK -->
+  <div class="sec-card">
+    <div class="sec-card-title">🙌 Volunteer Work</div>
+    <div class="fld">
+      <label>One per line</label>
+      <textarea id="volunteer" rows="3">NSS Volunteer — Digital literacy workshops for rural students (2022-23)
+Blood Donation Camp Coordinator — Red Cross Society (2023)</textarea>
     </div>
   </div>
 
@@ -465,12 +499,21 @@ Technical Head — College Coding Club, organized 3 inter-college hackathons</te
     <button class="add-btn" onclick="addLang()">+ Add Language</button>
   </div>
 
-  <!-- EXTRA CURRICULAR / INTERESTS -->
+  <!-- INTERESTS -->
   <div class="sec-card">
     <div class="sec-card-title">🎯 Interests</div>
     <div class="fld">
       <label>Comma separated</label>
-      <input id="interests" value="Open Source, Competitive Coding, Tech Blogging, Chess, Cricket">
+      <input id="interests" value="Open Source, Competitive Coding, Tech Blogging">
+    </div>
+  </div>
+
+  <!-- HOBBIES -->
+  <div class="sec-card">
+    <div class="sec-card-title">🎨 Hobbies</div>
+    <div class="fld">
+      <label>Comma separated</label>
+      <input id="hobbies" value="Chess, Cricket, Photography, Reading">
     </div>
   </div>
 
@@ -526,13 +569,14 @@ Technical Head — College Coding Club, organized 3 inter-college hackathons</te
     <div class="pages-wrap" id="pagesWrap"></div>
   </div>
 </div>
+<div id="measureBox"></div>
 
 <script>
 let photoDataURL = '';
 
 const ROLE_SUGGESTIONS = [
-  'Software Engineer (Fresher)','Full Stack Developer','Frontend Developer','Backend Developer',
-  'Data Analyst','Data Scientist (Fresher)','Java Developer','Python Developer','Mobile App Developer'
+  'Software Engineer ','Full Stack Developer','Frontend Developer','Backend Developer',
+  'Data Analyst','Data Scientist ','Java Developer','Python Developer','Mobile App Developer'
 ];
 
 function autoFillRole(){
@@ -657,15 +701,20 @@ function buildResume() {
   const phone       = document.getElementById('phone').value.trim();
   const dob         = document.getElementById('dob').value.trim();
   const loc         = document.getElementById('location').value.trim();
+  const address     = document.getElementById('address').value.trim();
   const linkedin    = document.getElementById('linkedin').value.trim();
   const github      = document.getElementById('github').value.trim();
   const portfolio   = document.getElementById('portfolio').value.trim();
+  const summary     = document.getElementById('summary').value.trim();
   const objective   = document.getElementById('objective').value.trim();
   const declaration = document.getElementById('declaration').value.trim();
   const tagsRaw     = document.getElementById('tags').value.trim();
   const interestsRaw= document.getElementById('interests').value.trim();
+  const hobbiesRaw  = document.getElementById('hobbies').value.trim();
   const achievementsRaw = document.getElementById('achievements').value.trim();
+  const certificationsRaw = document.getElementById('certifications').value.trim();
   const extraCurricularRaw = document.getElementById('extraCurricular').value.trim();
+  const volunteerRaw = document.getElementById('volunteer').value.trim();
   const otherToolsRaw = document.getElementById('otherTools').value.trim();
 
   const tags = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
@@ -675,8 +724,11 @@ function buildResume() {
   const softSkills = document.getElementById('softSkills').value.split(',').map(s => s.trim()).filter(Boolean);
   const otherTools = otherToolsRaw.split(',').map(s => s.trim()).filter(Boolean);
   const interests = interestsRaw.split(',').map(s => s.trim()).filter(Boolean);
+  const hobbies = hobbiesRaw.split(',').map(s => s.trim()).filter(Boolean);
   const achievements = achievementsRaw.split('\n').map(s => s.trim()).filter(Boolean);
+  const certifications = certificationsRaw.split('\n').map(s => s.trim()).filter(Boolean);
   const extraCurricular = extraCurricularRaw.split('\n').map(s => s.trim()).filter(Boolean);
+  const volunteer = volunteerRaw.split('\n').map(s => s.trim()).filter(Boolean);
 
   const expEntries = [...document.querySelectorAll('#expList .rep-entry')].map(e => ({
     title: e.querySelector('.exp-title').value.trim(),
@@ -685,12 +737,14 @@ function buildResume() {
     desc: e.querySelector('.exp-desc').value.trim()
   })).filter(e => e.title || e.company);
 
-  const projEntries = [...document.querySelectorAll('#projList .rep-entry')].map(e => ({
+  // Only the FIRST project is shown on the printed resume (all others stay saved in edit mode)
+  const allProjEntries = [...document.querySelectorAll('#projList .rep-entry')].map(e => ({
     name: e.querySelector('.proj-name').value.trim(),
     tech: e.querySelector('.proj-tech').value.trim(),
     link: e.querySelector('.proj-link').value.trim(),
     desc: e.querySelector('.proj-desc').value.trim()
   })).filter(e => e.name);
+  const projEntries = allProjEntries.slice(0, 1);
 
   const eduEntries = [...document.querySelectorAll('#eduList .rep-entry')].map(e => ({
     degree: e.querySelector('.edu-degree').value.trim(),
@@ -723,6 +777,7 @@ function buildResume() {
     { icon: '📱', label: 'PHONE', val: phone },
     { icon: '🎂', label: 'DOB', val: fmtDob(dob) },
     { icon: '📍', label: 'LOCATION', val: loc },
+    { icon: '🏠', label: 'ADDRESS', val: address },
     { icon: 'in', label: 'LINKEDIN', val: linkedin },
     { icon: 'gh', label: 'GITHUB', val: github },
     { icon: '🌐', label: 'PORTFOLIO', val: portfolio },
@@ -752,9 +807,8 @@ function buildResume() {
     </div>`;
   };
 
-  // ── SINGLE PAGE, FULL-WIDTH STACKED SECTIONS ──
-  const page1 = `
-  <div class="rpage">
+  // ── Build hero (page 1 only) ──
+  const heroHTML = `
     <div class="r-hero">
       <div class="r-photo">${photoHTML}</div>
       <div class="r-hero-info">
@@ -762,157 +816,160 @@ function buildResume() {
         <div class="r-role">${role}</div>
         <div class="r-tags">${tags.map((t, i) => `<span class="r-tag ${tagColors[i % 3]}">${t}</span>`).join('')}</div>
       </div>
-    </div>
-    <div class="r-body">
+    </div>`;
 
-      ${contactItems.length ? `
-      <div class="rs-section">
-        <div class="rs-title">👤 Personal Info</div>
-        <div class="contact-grid">
-          ${contactItems.map(c => `
-          <div class="contact-item">
-            <div class="ci-icon">${c.icon}</div>
-            <div>
-              <div class="ci-label">${c.label}</div>
-              <div class="ci-val">${c.val}</div>
-            </div>
-          </div>`).join('')}
+  // ── Build an ordered list of section blocks (each becomes one measurable unit) ──
+  const blocks = [];
+
+  if (contactItems.length) blocks.push(`
+    <div class="rs-title">👤 Personal Info</div>
+    <div class="contact-grid">
+      ${contactItems.map(c => `
+      <div class="contact-item">
+        <div class="ci-icon">${c.icon}</div>
+        <div>
+          <div class="ci-label">${c.label}</div>
+          <div class="ci-val">${c.val}</div>
         </div>
-      </div>` : ''}
+      </div>`).join('')}
+    </div>`);
 
-      ${objective ? `
-      <div class="rs-section">
-        <div class="rs-title">🎯 Objective</div>
-        <div class="obj-box">${objective}</div>
-      </div>` : ''}
+  if (summary) blocks.push(`
+    <div class="rs-title">📝 Professional Summary</div>
+    <div class="obj-box">${summary}</div>`);
 
-      ${eduEntries.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🎓 Education</div>
-        ${eduEntries.map(e => `
-        <div class="edu-sb">
+  if (objective) blocks.push(`
+    <div class="rs-title">🎯 Objective</div>
+    <div class="obj-box">${objective}</div>`);
+
+  if (eduEntries.length) blocks.push(`
+    <div class="rs-title">🎓 Education</div>
+    ${eduEntries.map(e => `
+    <div class="edu-sb">
+      <div>
+        <div class="edu-sb-deg">${e.degree}</div>
+        <div class="edu-sb-inst">${e.inst}</div>
+        <div class="edu-sb-yr">${e.year}</div>
+      </div>
+      ${e.grade ? `<span class="edu-sb-gpa">${e.grade}</span>` : ''}
+    </div>`).join('')}`);
+
+  if (techSkills.length) blocks.push(`
+    <div class="rs-title">🛠 Tech Skills</div>
+    <div class="skill-grid">
+      ${techSkills.map(s => `
+      <div class="skill-bar">
+        <div class="skill-bar-label"><span>${s.name}</span><span class="skill-bar-pct">${s.pct}%</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width:${s.pct}%"></div></div>
+      </div>`).join('')}
+    </div>`);
+
+  if (softSkills.length) blocks.push(`
+    <div class="rs-title">🤝 Soft Skills</div>
+    <div class="chip-grid">
+      ${softSkills.map(s => `<div class="soft-chip"><span class="soft-dot"></span>${s}</div>`).join('')}
+    </div>`);
+
+  if (otherTools.length) blocks.push(`
+    <div class="rs-title">⚙ Tools &amp; Frameworks</div>
+    <div class="chip-grid">
+      ${otherTools.map(t => `<div class="soft-chip"><span class="soft-dot"></span>${t}</div>`).join('')}
+    </div>`);
+
+  if (langEntries.length) blocks.push(`
+    <div class="rs-title">🌐 Languages</div>
+    ${langEntries.map(l => {
+      const lvlPct = { Native: 100, Fluent: 85, Intermediate: 60, Basic: 35 }[l.level] || 70;
+      return `
+      <div class="lang-item">
+        <div class="lang-item-top"><span class="lang-name">${l.name}</span><span class="lang-lvl">${l.level}</span></div>
+        <div class="lang-track"><div class="lang-fill" style="width:${lvlPct}%"></div></div>
+      </div>`;
+    }).join('')}`);
+
+  if (interests.length) blocks.push(`
+    <div class="rs-title">🎯 Interests</div>
+    <div class="chip-grid">
+      ${interests.map(i => `<div class="interest-chip"><span class="interest-dot"></span>${i}</div>`).join('')}
+    </div>`);
+
+  if (hobbies.length) blocks.push(`
+    <div class="rs-title">🎨 Hobbies</div>
+    <div class="chip-grid">
+      ${hobbies.map(h => `<div class="interest-chip"><span class="interest-dot"></span>${h}</div>`).join('')}
+    </div>`);
+
+  if (expEntries.length) blocks.push(`
+    <div class="rs-title">💼 Experience</div>
+    ${expEntries.map(e => expCardHTML(e)).join('')}`);
+
+  if (projEntries.length) blocks.push(`
+    <div class="rs-title">🚀 Projects</div>
+    ${projEntries.map(p => projCardHTML(p)).join('')}`);
+
+  if (achievements.length) blocks.push(`
+    <div class="rs-title">🏆 Achievements &amp; Awards</div>
+    ${achievements.map(a => `<div class="cert-sb"><div class="cert-ic">★</div><div class="cert-sb-text">${a}</div></div>`).join('')}`);
+
+  if (certifications.length) blocks.push(`
+    <div class="rs-title">📜 Certifications</div>
+    ${certifications.map(c => `<div class="cert-sb"><div class="cert-ic">✓</div><div class="cert-sb-text">${c}</div></div>`).join('')}`);
+
+  if (extraCurricular.length) blocks.push(`
+    <div class="rs-title">🎪 Extra Curricular</div>
+    ${extraCurricular.map(x => `<div class="extra-item"><span class="extra-dot"></span><span class="extra-text">${x}</span></div>`).join('')}`);
+
+  if (volunteer.length) blocks.push(`
+    <div class="rs-title">🙌 Volunteer Work</div>
+    ${volunteer.map(v => `<div class="extra-item"><span class="extra-dot"></span><span class="extra-text">${v}</span></div>`).join('')}`);
+
+  if (refEntries.length) blocks.push(`
+    <div class="rs-title">🤝 References &amp; Connections</div>
+    <div class="ref-grid">
+      ${refEntries.map(r => `
+      <div class="ref-card">
+        <div class="ref-top">
+          <div class="ref-avatar">${getInits(r.name)}</div>
           <div>
-            <div class="edu-sb-deg">${e.degree}</div>
-            <div class="edu-sb-inst">${e.inst}</div>
-            <div class="edu-sb-yr">${e.year}</div>
-          </div>
-          ${e.grade ? `<span class="edu-sb-gpa">${e.grade}</span>` : ''}
-        </div>`).join('')}
-      </div>` : ''}
-
-      ${techSkills.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🛠 Tech Skills</div>
-        <div class="skill-grid">
-          ${techSkills.map(s => `
-          <div class="skill-bar">
-            <div class="skill-bar-label"><span>${s.name}</span><span class="skill-bar-pct">${s.pct}%</span></div>
-            <div class="skill-track"><div class="skill-fill" style="width:${s.pct}%"></div></div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${softSkills.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🤝 Soft Skills</div>
-        <div class="chip-grid">
-          ${softSkills.map(s => `<div class="soft-chip"><span class="soft-dot"></span>${s}</div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${otherTools.length ? `
-      <div class="rs-section">
-        <div class="rs-title">⚙ Tools &amp; Frameworks</div>
-        <div class="chip-grid">
-          ${otherTools.map(t => `<div class="soft-chip"><span class="soft-dot"></span>${t}</div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${langEntries.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🌐 Languages</div>
-        ${langEntries.map(l => {
-          const lvlPct = { Native: 100, Fluent: 85, Intermediate: 60, Basic: 35 }[l.level] || 70;
-          return `
-          <div class="lang-item">
-            <div class="lang-item-top"><span class="lang-name">${l.name}</span><span class="lang-lvl">${l.level}</span></div>
-            <div class="lang-track"><div class="lang-fill" style="width:${lvlPct}%"></div></div>
-          </div>`;
-        }).join('')}
-      </div>` : ''}
-
-      ${interests.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🎯 Interests</div>
-        <div class="chip-grid">
-          ${interests.map(i => `<div class="interest-chip"><span class="interest-dot"></span>${i}</div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${expEntries.length ? `
-      <div class="rs-section">
-        <div class="rs-title">💼 Internships &amp; Experience</div>
-        ${expEntries.map(e => expCardHTML(e)).join('')}
-      </div>` : ''}
-
-      ${projEntries.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🚀 Projects</div>
-        ${projEntries.map(p => projCardHTML(p)).join('')}
-      </div>` : ''}
-
-      ${achievements.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🏆 Achievements &amp; Certifications</div>
-        ${achievements.map(a => `<div class="cert-sb"><div class="cert-ic">★</div><div class="cert-sb-text">${a}</div></div>`).join('')}
-      </div>` : ''}
-
-      ${extraCurricular.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🎪 Extra Curricular</div>
-        ${extraCurricular.map(x => `<div class="extra-item"><span class="extra-dot"></span><span class="extra-text">${x}</span></div>`).join('')}
-      </div>` : ''}
-
-      ${refEntries.length ? `
-      <div class="rs-section">
-        <div class="rs-title">🤝 References &amp; Connections</div>
-        <div class="ref-grid">
-          ${refEntries.map(r => `
-          <div class="ref-card">
-            <div class="ref-top">
-              <div class="ref-avatar">${getInits(r.name)}</div>
-              <div>
-                <div class="ref-name">${r.name}</div>
-                <div class="ref-desig">${r.desig}</div>
-              </div>
-            </div>
-            ${r.rel ? `<span class="ref-rel-tag">${r.rel}</span>` : ''}
-            <div class="ref-meta">✉ ${r.contact}</div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${declaration ? `
-      <div class="rs-section">
-        <div class="decl-box">
-          <div class="decl-text">${declaration}</div>
-          <div class="decl-foot">
-            <div class="decl-place-txt">
-              <div>📍 ${loc || 'India'}</div>
-              <div>📅 ${today}</div>
-            </div>
-            <div class="sig-wrap">
-              <div class="sig-line">Signature</div>
-              <div class="sig-name">${name}</div>
-            </div>
+            <div class="ref-name">${r.name}</div>
+            <div class="ref-desig">${r.desig}</div>
           </div>
         </div>
-      </div>` : ''}
+        ${r.rel ? `<span class="ref-rel-tag">${r.rel}</span>` : ''}
+        <div class="ref-meta">✉ ${r.contact}</div>
+      </div>`).join('')}
+    </div>`);
 
-    </div>
-  </div>`;
+  if (declaration) blocks.push(`
+    <div class="decl-box">
+      <div class="decl-text">${declaration}</div>
+      <div class="decl-foot">
+        <div class="decl-place-txt">
+          <div>📍 ${loc || 'India'}</div>
+          <div>📅 ${today}</div>
+        </div>
+        <div class="sig-wrap">
+          <div class="sig-line">Signature</div>
+          <div class="sig-name">${name}</div>
+        </div>
+      </div>
+    </div>`);
 
-  document.getElementById('pagesWrap').innerHTML = page1;
+  // ── Single continuous page: every section stacked one after another,
+  //    no splitting into separate page boxes. If content is long, the
+  //    browser's print engine will flow it naturally across physical
+  //    sheets when printing (with break-inside:avoid protecting each
+  //    section from being cut mid-way), but on screen and as one HTML
+  //    page it always renders as ONE page. ──
+  const pagesHTML = `
+    <div class="rpage">
+      ${heroHTML}
+      <div class="r-body">
+        ${blocks.map(b => `<div class="rs-section">${b}</div>`).join('')}
+      </div>
+    </div>`;
+
+  document.getElementById('pagesWrap').innerHTML = pagesHTML;
 }
 </script>
 </body>
